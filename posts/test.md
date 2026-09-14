@@ -1,5 +1,5 @@
 ---
-title: "Working on small problems on _out of the cave_"
+title: "Working on small problems on out of the cave"
 date: "September 14, 2026"
 reading: "1 min read"
 description: "How do I make discord discussions with friends interesting by solving math problems and having interesting discussins."
