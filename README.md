@@ -46,13 +46,14 @@ Then visit <http://localhost:8000>.
   `posts/*.md` with frontmatter into an `.html` page and stops serving the
   raw `.md` files that `app.js` fetches, so the index shows only the
   "notes could not be loaded" notice.
-- Fully self-contained: no third-party requests at all. `vendor/` holds
-  pinned copies of marked 18.0.12, DOMPurify 3.4.15, and MathJax 3.2.2
-  (bundle, CHTML fonts, and a11y helpers). Licenses sit alongside.
-- One typeface, SF Mono, via the `--mono`/`--sans`/`--term` variables in
-  `styles.css`. It resolves to `ui-monospace, "SF Mono", ...` — SF Mono on
-  Apple devices, a monospace fallback elsewhere. There is no web font to
-  load, so the old Google Fonts link is gone.
+- No third-party scripts. `vendor/` holds pinned copies of marked 18.0.12,
+  DOMPurify 3.4.15, and MathJax 3.2.2 (bundle, CHTML fonts, and a11y
+  helpers). Licenses sit alongside.
+- Fonts mirror bellums.org exactly so the two sites read as one: VT323 for
+  the wordmark/headings, Pontano Sans for body, DejaVu mono for code, set via
+  the `--term`/`--sans`/`--mono` variables in `styles.css`. VT323 and Pontano
+  Sans load from Google Fonts (the same `<link>` bellums.org uses); keep the
+  variables and the sizes in step with bellums.org's `static/base.css`.
 - Cache-busting: `styles.css`, `theme.js`, and `app.js` are referenced with
   a `?v=<stamp>` query in `index.html`. GitHub/Cloudflare cache these first-
   party files for hours, so **bump the stamp on every deploy that changes

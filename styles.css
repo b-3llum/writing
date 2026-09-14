@@ -17,13 +17,12 @@
   --link-hi: #0E9455;
   --warn:    #9A3412;
 
-  /* One typeface for the whole site: SF Mono on Apple platforms via the
-     ui-monospace keyword, with graceful fallbacks everywhere else. The
-     three role names are kept so the rest of the sheet is unchanged; they
-     all now resolve to the same monospace stack. */
-  --mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono", "Roboto Mono", "DejaVu Sans Mono", "Liberation Mono", Consolas, monospace;
-  --sans: var(--mono);
-  --term: var(--mono);
+  /* Fonts mirror bellums.org (the reference) exactly, so the two sites read
+     as one: VT323 for display/headings, Pontano Sans for body, DejaVu mono
+     for code. VT323 + Pontano Sans load from Google Fonts in index.html. */
+  --sans: "Pontano Sans", Verdana, Geneva, "DejaVu Sans", Arial, sans-serif;
+  --term: "VT323", "DejaVu Sans Mono", "Liberation Mono", Consolas, monospace;
+  --mono: "DejaVu Sans Mono", "Liberation Mono", Menlo, Consolas, monospace;
 }
 
 @media screen and (prefers-color-scheme: dark) {
