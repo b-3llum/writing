@@ -3,6 +3,7 @@ title: "Intro to buffer overflow"
 date: "September 10, 2026"
 reading: "18 min read"
 description: "Walking a stack-based overflow end to end: fuzzing, controlling EIP, bad characters, and landing shellcode."
+tags: oscp, exploit-dev, windows
 ---
 
 > **Note:** As of the 2023 exam update, OffSec removed the dedicated stack buffer overflow machine from the OSCP exam, so you are far less likely to need this end-to-end on exam day. It is still part of the PEN-200 courseware, and the workflow below — fuzz → control EIP → find bad characters → locate a `JMP ESP` → drop shellcode — is foundational for understanding memory-corruption exploitation.

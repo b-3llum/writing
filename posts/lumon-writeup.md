@@ -1,6 +1,10 @@
-# The Lumon Incident
------
-
+---
+title: "The Lumon Incident"
+date: "September 12, 2026"
+reading: "7 min read"
+description: "A Linux CTF end to end: username enumeration, an SSH password attack for a foothold, credentials tucked in a backup, and a SUID /bin/bash to root — around a maze of rabbit holes."
+tags: ctf, linux, privesc
+---
 
 ![](Attachments/Pasted%20image%2020260912180602.png)
 
@@ -12,7 +16,7 @@ The lab runs on a Linux server hosting a web server and an FTP server, with SSH 
 
 We began with an Nmap scan, found 3 services running, and noticed that the server is running Linux:
 
-![](attachments/Pasted%20image%2020260912033823.png)
+![](Attachments/Pasted%20image%2020260912033823.png)
 
 ```bash
 # Nmap 7.93 scan initiated Sat Sep 12 06:17:26 2026 as: nmap -Pn -p- -A --vv -oN scan.txt 10.64.128.39
@@ -137,7 +141,7 @@ We took a look at the website to see what's there and found an admin page and a 
 
 ![](Attachments/Pasted%20image%2020260912190438.png)
 
-![478](attachments/Pasted%20image%2020260912033322.png)
+![478](Attachments/Pasted%20image%2020260912033322.png)
 
 At this point we ended up doing a directory busting attack on the website and uncovered an exposed .git repository, hoping to find credentials stored there:
 
@@ -239,13 +243,13 @@ Upon logging in, we found a search bar vulnerable to SQLi, so we did some enumer
 
 As there were 4 columns, we tried querying three numbers and the data we wanted, which gave us the table names and their column names:
 
-![](attachments/Pasted%20image%2020260912034358.png)
+![](Attachments/Pasted%20image%2020260912034358.png)
 
 We were able to read the first flag and other information, including the usernames and bcrypt password hashes. bcrypt takes a long time to crack, so rather than cracking them offline we trimmed the list of users we found, dropped the unlikely ones, and ran a hydra password attack against the server's SSH, which would be faster:
 
 ![](Attachments/Pasted%20image%2020260912194637.png)
 
-![](attachments/Pasted%20image%2020260912041206.png)
+![](Attachments/Pasted%20image%2020260912041206.png)
 
 After gathering the hashes and the list of users, we ran a password attack against SSH using that user list and the rockyou.txt password list:
 

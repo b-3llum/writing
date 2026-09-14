@@ -5,15 +5,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>writting</title>
 <meta name="description" content="A small, public notebook for essays, experiments, and unfinished thoughts.">
+<link rel="canonical" href="https://yap.bellums.org/writting/">
+<!-- Open Graph / Twitter cards. Static, because social crawlers do not run
+     JS: any note link previews with this site-level card. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="writting">
+<meta property="og:title" content="writting — notes from the lab">
+<meta property="og:description" content="Essays, experiments, and unfinished thoughts about the things I'm learning.">
+<meta property="og:url" content="https://yap.bellums.org/writting/">
+<meta property="og:image" content="https://yap.bellums.org/writting/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="writting — notes from the lab">
+<meta name="twitter:description" content="Essays, experiments, and unfinished thoughts about the things I'm learning.">
+<meta name="twitter:image" content="https://yap.bellums.org/writting/og.png">
+<link rel="alternate" type="application/atom+xml" title="writting" href="feed.xml">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="styles.css?v=2026091002">
-<script src="theme.js?v=2026091002"></script>
+<link rel="stylesheet" href="styles.css?v=2026091401">
+<script src="theme.js?v=2026091401"></script>
 <!-- Vendored, pinned copies (see vendor/): no third-party script hosts.
      Deferred scripts run in document order, so app.js can configure
      MathJax (window.MathJax) before the MathJax bundle starts. -->
 <script defer src="vendor/marked.min.js"></script>
 <script defer src="vendor/purify.min.js"></script>
-<script defer src="app.js?v=2026091002"></script>
+<script defer src="app.js?v=2026091401"></script>
 <script defer src="vendor/mathjax/tex-mml-chtml.js"></script>
 </head>
 <body>
@@ -22,6 +36,7 @@
 <div id="siteslogan">notes from the lab</div>
 
 <div id="topmenu">
+  <button id="navToggle" class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="siteNav">☰</button>
   <div id="siteNav">
     <ul>
       <li><a class="active" href="./">Notes</a></li>
@@ -36,12 +51,14 @@
     <li><span class="sh">On this page</span></li>
     <li><a href="#notes">Notes</a></li>
   </ul>
+  <ul id="tag-filter"></ul>
   <ul>
     <li><span class="sh">Elsewhere</span></li>
     <li><a href="https://bellums.org/">bellums.org</a></li>
     <li><a href="https://github.com/b-3llum">GitHub</a></li>
     <li><a href="https://linkedin.com/in/moussa-toure-cyber">LinkedIn</a></li>
     <li><a href="https://bellums.org/files">File server</a></li>
+    <li><a href="feed.xml">Feed</a></li>
     <li><a href="mailto:moussa.toure@bellums.org">Email</a></li>
   </ul>
 </div>
@@ -58,12 +75,13 @@
       <h2 id="notes">Notes</h2>
       <span id="post-count" class="tag"></span>
     </div>
+    <input id="note-search" type="search" placeholder="Search notes&hellip;" aria-label="Search notes" autocomplete="off" spellcheck="false">
     <div id="post-list" aria-live="polite"></div>
   </section>
 
   <article id="post-view" hidden>
     <div id="post-content"></div>
-    <div class="action-row"><a href="#notes">&larr; All notes</a></div>
+    <div class="action-row" id="post-actions"><a class="all-notes" href="#notes">&larr; All notes</a></div>
   </article>
 
 </main>
@@ -73,6 +91,7 @@
   <a href="https://bellums.org/">bellums.org</a> &middot;
   <a href="https://github.com/b-3llum">github</a> &middot;
   <a href="https://linkedin.com/in/moussa-toure-cyber">linkedin</a> &middot;
+  <a href="feed.xml">feed</a> &middot;
   <a href="mailto:moussa.toure@bellums.org">moussa.toure@bellums.org</a> &middot;
   &copy; 2026
 </div>

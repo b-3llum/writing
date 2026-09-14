@@ -1,9 +1,11 @@
-/* app.js — loads the notes listed below, renders the index as record rows
-   grouped by year, and shows a single note when the URL hash matches its slug. */
+/* app.js — loads the notes listed below, renders the index (searchable and
+   filterable by tag) as record rows grouped by year, and shows a single note
+   when the URL hash matches its slug. */
 
 const posts = [
   { slug: "a-small-place-to-think", file: "posts/a-small-place-to-think.md" },
-  { slug: "buffer-overflow", file: "posts/buffer-overflow.md" }
+  { slug: "buffer-overflow", file: "posts/buffer-overflow.md" },
+  { slug: "lumon-writeup", file: "posts/lumon-writeup.md" }
 ];
 
 const indexView = document.querySelector("#index-view");
@@ -12,10 +14,16 @@ const count = document.querySelector("#post-count");
 const postView = document.querySelector("#post-view");
 const postContent = document.querySelector("#post-content");
 const pageIndex = document.querySelector("#page-index");
+const tagFilter = document.querySelector("#tag-filter");
+const search = document.querySelector("#note-search");
+const actionRow = document.querySelector("#post-actions");
 const siteTitle = document.title;
 
 let current = null;   // the note on screen, or null on the index
 let rendered = null;  // the note whose content is in #post-content
+let allPosts = [];    // every loaded note, newest first
+let activeTag = "all";
+let query = "";
 
 function parseFrontmatter(source) {
   const match = source.match(/^---\s*([\s\S]*?)\s*---\s*([\s\S]*)$/);
@@ -141,6 +149,11 @@ function metaLine(post) {
   return [post.attributes.date, post.attributes.reading].filter(Boolean).map(escapeHtml).join(" · ");
 }
 
+/* Tags are a comma-separated frontmatter field: `tags: oscp, exploit-dev`. */
+function tagsOf(post) {
+  return (post.attributes.tags || "").split(",").map((t) => t.trim()).filter(Boolean);
+}
+
 async function loadPost(post) {
   const response = await fetch(post.file);
   if (!response.ok) throw new Error(`Could not load ${post.file}`);
@@ -154,13 +167,56 @@ function setPageIndex(items) {
     : "";
 }
 
+/* ---- index: search + tag filter (bellums.org /work-style .pill filter) ---- */
+
+function allTags() {
+  const set = new Set();
+  allPosts.forEach((post) => tagsOf(post).forEach((t) => set.add(t)));
+  return Array.from(set).sort((a, b) => a.localeCompare(b));
+}
+
+function renderTagFilter() {
+  if (!tagFilter) return;
+  const tags = allTags();
+  if (!tags.length) { tagFilter.innerHTML = ""; return; }
+  const pill = (value, label, active) =>
+    `<li><button class="pill${active ? " active" : ""}" data-filter="${escapeHtml(value)}">${escapeHtml(label)}</button></li>`;
+  tagFilter.innerHTML =
+    `<li><span class="sh">Filter</span></li>` +
+    pill("all", "All", activeTag === "all") +
+    tags.map((t) => pill(t, t, activeTag === t)).join("");
+  tagFilter.querySelectorAll(".pill").forEach((button) => {
+    button.addEventListener("click", () => {
+      activeTag = button.dataset.filter;
+      renderTagFilter();
+      applyFilter();
+    });
+  });
+}
+
+function matchesFilter(post) {
+  if (activeTag !== "all" && !tagsOf(post).includes(activeTag)) return false;
+  if (!query) return true;
+  const hay = [post.attributes.title, post.attributes.description, tagsOf(post).join(" "), post.body]
+    .filter(Boolean).join(" ").toLowerCase();
+  return hay.includes(query);
+}
+
+function applyFilter() {
+  renderList(allPosts.filter(matchesFilter));
+}
+
+/* ---- list ---- */
+
 function renderRow(post) {
+  const tags = tagsOf(post);
   const item = document.createElement("li");
   item.innerHTML = `
     <a class="ios-row" href="#${escapeHtml(post.slug)}">
       <span class="ttl-row">
         <span class="ttl">${escapeHtml(post.attributes.title || post.slug)}</span>
         ${post.attributes.description ? `<span class="sub">${escapeHtml(post.attributes.description)}</span>` : ""}
+        ${tags.length ? `<span class="row-tags">${tags.map((t) => `<span class="row-tag">${escapeHtml(t)}</span>`).join("")}</span>` : ""}
       </span>
       <span class="right">
         <span class="meta">${metaLine(post)}</span>
@@ -171,6 +227,17 @@ function renderRow(post) {
 }
 
 function renderList(loadedPosts) {
+  list.innerHTML = "";
+
+  if (!loadedPosts.length) {
+    const bits = [];
+    if (query) bits.push(`“${escapeHtml(query)}”`);
+    if (activeTag !== "all") bits.push(`tag ${escapeHtml(activeTag)}`);
+    list.innerHTML = `<div class="notice"><p>No notes match${bits.length ? " " + bits.join(" in ") : ""}.</p></div>`;
+    count.textContent = allPosts.length ? `0 of ${allPosts.length}` : "";
+    return;
+  }
+
   const groups = new Map();
   loadedPosts.forEach((post) => {
     const year = yearOf(post);
@@ -178,7 +245,6 @@ function renderList(loadedPosts) {
     groups.get(year).push(post);
   });
 
-  list.innerHTML = "";
   groups.forEach((group, year) => {
     const block = document.createElement("div");
     block.className = "year-block";
@@ -194,7 +260,10 @@ function renderList(loadedPosts) {
     list.appendChild(block);
   });
 
-  count.textContent = `${loadedPosts.length} ${loadedPosts.length === 1 ? "note" : "notes"}`;
+  const noun = loadedPosts.length === 1 ? "note" : "notes";
+  count.textContent = loadedPosts.length === allPosts.length
+    ? `${loadedPosts.length} ${noun}`
+    : `${loadedPosts.length} of ${allPosts.length}`;
 }
 
 function showIndex() {
@@ -202,7 +271,65 @@ function showIndex() {
   postView.hidden = true;
   indexView.hidden = false;
   setPageIndex([{ id: "notes", label: "Notes" }]);
+  renderTagFilter();
   document.title = siteTitle;
+}
+
+/* ---- single note ---- */
+
+function copyText(text, button) {
+  const label = button.textContent;
+  const done = () => {
+    button.textContent = "Copied";
+    button.classList.add("copied");
+    setTimeout(() => { button.textContent = label; button.classList.remove("copied"); }, 1200);
+  };
+  const fallback = () => {
+    const area = document.createElement("textarea");
+    area.value = text;
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    try { document.execCommand("copy"); done(); } catch (error) { console.error(error); }
+    area.remove();
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done).catch(fallback);
+  } else {
+    fallback();
+  }
+}
+
+/* Heading anchor links and per-block copy buttons, added after the markdown
+   is in the DOM but before MathJax runs (MathJax skips pre/code anyway). */
+function decoratePost() {
+  postContent.querySelectorAll(".markdown-body h2, .markdown-body h3").forEach((heading) => {
+    const label = heading.textContent.trim();
+    if (!heading.id) heading.id = uniqueId(slugify(label));
+    heading.dataset.label = label;
+    const anchor = document.createElement("a");
+    anchor.className = "anchor";
+    anchor.href = `#${heading.id}`;
+    anchor.setAttribute("aria-label", `Link to “${label}”`);
+    anchor.textContent = "#";
+    heading.appendChild(anchor);
+  });
+
+  postContent.querySelectorAll(".markdown-body pre").forEach((pre) => {
+    if (pre.parentElement && pre.parentElement.classList.contains("code-block")) return;
+    const code = pre.querySelector("code");
+    const wrap = document.createElement("div");
+    wrap.className = "code-block";
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "copy-btn";
+    button.textContent = "Copy";
+    button.addEventListener("click", () => copyText((code || pre).innerText, button));
+    wrap.appendChild(button);
+  });
 }
 
 function renderPost(post) {
@@ -210,26 +337,49 @@ function renderPost(post) {
   assetBase = post.file.replace(/[^/]*$/, "");
   clearTypeset(postContent);
   const meta = metaLine(post);
+  const tags = tagsOf(post);
   postContent.innerHTML = `
     <div class="page-head">
       ${meta ? `<p class="eyebrow">${meta}</p>` : ""}
       <h1>${escapeHtml(post.attributes.title || post.slug)}</h1>
       ${post.attributes.description ? `<p class="lede">${escapeHtml(post.attributes.description)}</p>` : ""}
+      ${tags.length ? `<p class="post-tags">${tags.map((t) => `<span class="row-tag">${escapeHtml(t)}</span>`).join("")}</p>` : ""}
     </div>
     <div class="markdown-body">${DOMPurify.sanitize(marked.parse(post.body))}</div>`;
 
-  postContent.querySelectorAll(".markdown-body h2").forEach((heading) => {
-    if (!heading.id) heading.id = uniqueId(slugify(heading.textContent));
-  });
+  decoratePost();
   typeset(postContent);
+}
+
+/* Newest-first order, so the note before this one is newer and the one after
+   is older. */
+function renderActions(post) {
+  if (!actionRow) return;
+  const i = allPosts.indexOf(post);
+  const newer = allPosts[i - 1];
+  const older = allPosts[i + 1];
+  const link = (target, dir, arrow) => target
+    ? `<a class="pn-link pn-${dir}" href="#${escapeHtml(target.slug)}">
+         <span class="pn-dir">${arrow}</span>
+         <span class="pn-ttl">${escapeHtml(target.attributes.title || target.slug)}</span>
+       </a>`
+    : `<span class="pn-link pn-empty" aria-hidden="true"></span>`;
+  actionRow.innerHTML =
+    `<a class="all-notes" href="#notes">&larr; All notes</a>
+     <nav class="prev-next" aria-label="More notes">
+       ${link(newer, "newer", "Newer &uarr;")}
+       ${link(older, "older", "Older &darr;")}
+     </nav>`;
 }
 
 function revealPost(post) {
   current = post;
   indexView.hidden = true;
   postView.hidden = false;
+  if (tagFilter) tagFilter.innerHTML = "";
   const headings = Array.from(postContent.querySelectorAll(".markdown-body h2"));
-  setPageIndex(headings.map((heading) => ({ id: heading.id, label: heading.textContent })));
+  setPageIndex(headings.map((heading) => ({ id: heading.id, label: heading.dataset.label || heading.textContent })));
+  renderActions(post);
   document.title = `${post.attributes.title || post.slug} · ${siteTitle}`;
 }
 
@@ -248,8 +398,8 @@ function route(loadedPosts) {
   }
 
   // A hash that points at a heading inside the last opened note (from the
-  // side index, or the browser going back to it): keep or restore that note
-  // and let the browser scroll to the heading.
+  // side index, an anchor link, or the browser going back to it): keep or
+  // restore that note and let the browser scroll to the heading.
   const target = hash ? document.getElementById(hash) : null;
   if (rendered && target && postView.contains(target)) {
     if (!current) {
@@ -265,23 +415,47 @@ function route(loadedPosts) {
   }
 }
 
+/* Mobile nav: bellums.org ships this hook in site.js; wire it here so the
+   header collapses behind a toggle on small screens instead of wrapping. */
+function setupNav() {
+  const toggle = document.querySelector("#navToggle");
+  const nav = document.querySelector("#siteNav");
+  if (!toggle || !nav) return;
+  toggle.addEventListener("click", () => {
+    const open = nav.classList.toggle("open");
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+  nav.addEventListener("click", (event) => {
+    if (event.target.tagName === "A") nav.classList.remove("open");
+  });
+}
+
 async function start() {
+  setupNav();
+  if (search) {
+    search.addEventListener("input", () => {
+      query = search.value.trim().toLowerCase();
+      if (!current) applyFilter();
+    });
+  }
+
   // allSettled, not all: a single unreachable note should not blank the
   // entire index. Render every note that loaded; only show the error when
   // nothing loaded at all.
   const settled = await Promise.allSettled(posts.map(loadPost));
-  const loadedPosts = settled.filter((s) => s.status === "fulfilled").map((s) => s.value);
+  allPosts = settled.filter((s) => s.status === "fulfilled").map((s) => s.value);
   settled.filter((s) => s.status === "rejected").forEach((s) => console.error(s.reason));
 
-  if (!loadedPosts.length) {
+  if (!allPosts.length) {
     list.innerHTML = `<div class="notice"><p>The notes could not be loaded. Serve this folder over HTTP, for example <code>python3 -m http.server 8000</code>, then reload.</p></div>`;
     return;
   }
 
-  loadedPosts.sort((a, b) => timestamp(b) - timestamp(a));
-  renderList(loadedPosts);
-  route(loadedPosts);
-  window.addEventListener("hashchange", () => route(loadedPosts));
+  allPosts.sort((a, b) => timestamp(b) - timestamp(a));
+  renderTagFilter();
+  applyFilter();
+  route(allPosts);
+  window.addEventListener("hashchange", () => route(allPosts));
 }
 
 start();

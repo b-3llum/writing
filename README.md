@@ -9,13 +9,25 @@ Published at <https://yap.bellums.org/writting/> and linked from
 1. Add a Markdown file to `posts/`. Images go in `posts/Attachments/` and are
    referenced relative to the note, the way an Obsidian vault stores them:
    `![](Attachments/Pasted%20image%2020260608211427.png)`.
-2. Start it with frontmatter for `title`, `date`, `reading`, and `description`.
+2. Start it with frontmatter for `title`, `date`, `reading`, `description`,
+   and optional `tags` (comma-separated, e.g. `tags: ctf, linux, privesc`).
    `date` should be a real date (`September 10, 2026`); notes are sorted by it
-   and grouped by year.
+   and grouped by year. Tags become the sidebar filter pills, and everything
+   (title, description, tags, body) is searchable from the box on the index.
 3. Add the post file to the `posts` array in `app.js`.
 4. Markdown, LaTeX between `$...$` or `$$...$$`, fenced code blocks, tables,
    and regular Markdown images are supported. A literal dollar sign in prose
    is written `\$`.
+5. Regenerate the feed and bump the cache stamp before deploying:
+
+   ```sh
+   node tools/build-feed.mjs                 # rebuilds feed.xml from posts/
+   # then bump ?v=<stamp> on styles.css/theme.js/app.js in index.html
+   ```
+
+   `feed.xml` is a committed Atom feed (there is no build server). `og.png`
+   is the static link-preview card referenced from `index.html`; regenerate
+   it only if the site name or tagline changes.
 
 For a local preview, run:
 

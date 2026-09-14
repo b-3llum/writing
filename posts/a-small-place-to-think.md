@@ -3,6 +3,7 @@ title: "A small place to think"
 date: "September 10, 2026"
 reading: "3 min read"
 description: "Why I am keeping this notebook public, unfinished, and a little bit messy."
+tags: meta, writing
 ---
 
 ## The point is to keep going
