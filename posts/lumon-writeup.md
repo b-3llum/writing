@@ -266,3 +266,7 @@ We then used those to log in as that user and grab their flag:
 We then proceeded to the last phase, privilege escalation, which was fairly easy, as the bash binary had the SUID bit set, allowing any user to run it with -p to elevate their privileges and grab the last flag.
 
 ![](Attachments/Pasted%20image%2020260912200534.png)
+
+You might fall into a lot of rabbit holes attempting this lab.
+
+Thanks for reading.
