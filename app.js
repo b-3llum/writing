@@ -5,7 +5,8 @@
 const posts = [
   { slug: "a-small-place-to-think", file: "posts/a-small-place-to-think.md" },
   { slug: "buffer-overflow", file: "posts/buffer-overflow.md" },
-  { slug: "lumon-writeup", file: "posts/lumon-writeup.md" }
+  { slug: "lumon-writeup", file: "posts/lumon-writeup.md" },
+  { slug: "test", file: "posts/test.md" }
 ];
 
 const indexView = document.querySelector("#index-view");
