@@ -6,8 +6,8 @@
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-const SITE = "https://yap.bellums.org/writting/";
-const TITLE = "writting";
+const SITE = "https://yap.bellums.org/writing/";
+const TITLE = "writing";
 const SUBTITLE = "Essays, experiments, and unfinished thoughts about the things I'm learning.";
 const AUTHOR = "Moussa Toure";
 
