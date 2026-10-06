@@ -1,4 +1,4 @@
-# writting
+# writing
 
 A small, public notebook for essays, experiments, and unfinished thoughts.
 Published at <https://yap.bellums.org/writting/> and linked from
