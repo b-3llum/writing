@@ -1,7 +1,7 @@
 # writing
 
 A small, public notebook for essays, experiments, and unfinished thoughts.
-Published at <https://yap.bellums.org/writting/> and linked from
+Published at <https://yap.bellums.org/writing/> and linked from
 <https://bellums.org/writing>.
 
 ## Write a post
@@ -40,7 +40,7 @@ Then visit <http://localhost:8000>.
 ## How it is served
 
 - GitHub Pages builds the `main` branch of this repo and serves it under
-  `yap.bellums.org/writting/` (the `yap.bellums.org` CNAME lives in the
+  `yap.bellums.org/writing/` (the `yap.bellums.org` CNAME lives in the
   `b-3llum.github.io` repo; Cloudflare proxies the domain).
 - `.nojekyll` must stay. Without it GitHub runs Jekyll, which turns every
   `posts/*.md` with frontmatter into an `.html` page and stops serving the
