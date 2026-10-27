@@ -546,3 +546,23 @@ a.ios-row:hover .chev { color: var(--link); }
   * { transition: none !important; animation: none !important; }
   html { scroll-behavior: auto; }
 }
+
+/* Sisyphus filling the right margin on every page */
+body::after {
+  content: "";
+  position: fixed;          /* stays put while scrolling */
+  top: 150px;               /* lines up with the page title */
+  bottom: 60px;
+  left: 1060px;             /* main ends at 236 + 780 = 1016px, plus a gap */
+  right: 24px;
+  background-color: var(--ink);
+  -webkit-mask: url("/static/sisyphus.svg") no-repeat center / contain;
+          mask: url("/static/sisyphus.svg") no-repeat center / contain;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* no room for it on smaller screens */
+@media (max-width: 1300px) {
+  body::after { display: none; }
+}
