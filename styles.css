@@ -556,8 +556,8 @@ body::after {
   left: 1060px;             /* main ends at 236 + 780 = 1016px, plus a gap */
   right: 24px;
   background-color: var(--ink);
-  -webkit-mask: url("/static/sisyphus.svg") no-repeat center / contain;
-          mask: url("/static/sisyphus.svg") no-repeat center / contain;
+  -webkit-mask: url("static/sisyphus.svg") no-repeat center / contain;
+          mask: url("static/sisyphus.svg") no-repeat center / contain;
   pointer-events: none;
   z-index: 0;
 }
